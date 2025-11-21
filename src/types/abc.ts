@@ -47,4 +47,5 @@ export const ABC_DURATION_PATTERN = /^\/?\d+(\/\d+)?$/; // 音長記号 (2, /2, 
 export const ABC_REST_PATTERN = /[zZx]/; // 休符 (z: 休符, Z: 全休符, x: 見えない休符)
 export const ABC_TIE_PATTERN = /^\.?-$/; // タイ (-, .-破線タイ)
 export const ABC_ORNAMENT_PATTERN = /[.~HLMOPSTuv]/; // 装飾記号 (., ~, H, L, M, O, P, S, T, u, v)
+export const ABC_CHORD_SYMBOL_PATTERN = /^"[^"]*"$/; // コード記号 ("C", "Am7", "Dm7/F" など)
 export const ABC_COMMENT_PATTERN = /^%.*$/;

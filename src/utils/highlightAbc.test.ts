@@ -9,6 +9,7 @@ import {
   parseRest,
   parseTie,
   parseOrnament,
+  parseChordSymbol,
   highlightMusicLine,
   highlightAbc,
 } from './highlightAbc';
@@ -385,6 +386,57 @@ describe('parseOrnament', () => {
   });
 });
 
+describe('parseChordSymbol', () => {
+  it('should parse simple chord "C"', () => {
+    const result = parseChordSymbol('"C"', 0);
+    expect(result).toEqual({
+      html: '<span class="abc-chord-symbol">&quot;C&quot;</span>',
+      nextIndex: 3,
+    });
+  });
+
+  it('should parse minor chord "Am"', () => {
+    const result = parseChordSymbol('"Am"', 0);
+    expect(result).toEqual({
+      html: '<span class="abc-chord-symbol">&quot;Am&quot;</span>',
+      nextIndex: 4,
+    });
+  });
+
+  it('should parse seventh chord "Dm7"', () => {
+    const result = parseChordSymbol('"Dm7"', 0);
+    expect(result).toEqual({
+      html: '<span class="abc-chord-symbol">&quot;Dm7&quot;</span>',
+      nextIndex: 5,
+    });
+  });
+
+  it('should parse chord with bass "C/E"', () => {
+    const result = parseChordSymbol('"C/E"', 0);
+    expect(result).toEqual({
+      html: '<span class="abc-chord-symbol">&quot;C/E&quot;</span>',
+      nextIndex: 5,
+    });
+  });
+
+  it('should parse complex chord "Gmaj7"', () => {
+    const result = parseChordSymbol('"Gmaj7"', 0);
+    expect(result).toEqual({
+      html: '<span class="abc-chord-symbol">&quot;Gmaj7&quot;</span>',
+      nextIndex: 7,
+    });
+  });
+
+  it('should return null for unclosed quote', () => {
+    expect(parseChordSymbol('"C', 0)).toBeNull();
+  });
+
+  it('should return null for non-chord characters', () => {
+    expect(parseChordSymbol('C', 0)).toBeNull();
+    expect(parseChordSymbol('|', 0)).toBeNull();
+  });
+});
+
 describe('highlightMusicLine', () => {
   it('should highlight simple note sequence', () => {
     const result = highlightMusicLine('C D E F');
@@ -515,6 +567,16 @@ describe('highlightMusicLine', () => {
     expect(result).toContain('<span class="abc-tie abc-tie-dotted">.-</span>');
   });
 
+  it('should highlight chord symbols in music line', () => {
+    const result = highlightMusicLine('"C"C "Am"A "G7"G |');
+    expect(result).toContain('<span class="abc-chord-symbol">&quot;C&quot;</span>');
+    expect(result).toContain('<span class="abc-chord-symbol">&quot;Am&quot;</span>');
+    expect(result).toContain('<span class="abc-chord-symbol">&quot;G7&quot;</span>');
+    expect(result).toContain('<span class="abc-note">C</span>');
+    expect(result).toContain('<span class="abc-note">A</span>');
+    expect(result).toContain('<span class="abc-note">G</span>');
+  });
+
   it('should handle complex music line', () => {
     const result = highlightMusicLine('^C2 D/2 | [CEG] (3DEF | (AB) |');
     expect(result).toContain('abc-accidental');
@@ -558,5 +620,54 @@ describe('highlightAbc', () => {
   it('should preserve line breaks', () => {
     const result = highlightAbc('C D\nE F');
     expect(result.split('\n')).toHaveLength(2);
+  });
+
+  it('should highlight comprehensive ABC notation with all features', () => {
+    const abc = `X:1
+T:Complete Test
+M:4/4
+K:C
+% This tests all features
+"C"^C2 z/2 | [CEG] (3DEF.- | "Am"(AB) ~C |`;
+    const result = highlightAbc(abc);
+
+    // Meta fields
+    expect(result).toContain('abc-meta-key');
+    expect(result).toContain('abc-meta-value');
+
+    // Comment
+    expect(result).toContain('abc-comment');
+
+    // Chord symbols
+    expect(result).toContain('abc-chord-symbol');
+    expect(result).toContain('&quot;C&quot;');
+    expect(result).toContain('&quot;Am&quot;');
+
+    // Accidentals
+    expect(result).toContain('abc-accidental');
+
+    // Durations
+    expect(result).toContain('abc-duration');
+
+    // Rests
+    expect(result).toContain('abc-rest');
+
+    // Chord brackets
+    expect(result).toContain('abc-chord');
+
+    // Tuplets
+    expect(result).toContain('abc-tuplet');
+
+    // Ties
+    expect(result).toContain('abc-tie');
+
+    // Slurs
+    expect(result).toContain('abc-slur');
+
+    // Ornaments
+    expect(result).toContain('abc-ornament');
+
+    // Bar lines
+    expect(result).toContain('abc-bar');
   });
 });
