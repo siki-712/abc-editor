@@ -5,6 +5,7 @@ import {
   ABC_BAR_PATTERN,
   ABC_CHORD_BRACKET_PATTERN,
   ABC_SLUR_PATTERN,
+  ABC_DURATION_PATTERN,
   ABC_COMMENT_PATTERN,
 } from '../types/abc';
 
@@ -81,10 +82,48 @@ const highlightMusicLine = (line: string): string => {
       continue;
     }
 
-    // 音符
+    // 音符（音長記号も一緒に処理）
     if (ABC_NOTE_PATTERN.test(char)) {
       result += `<span class="abc-note">${escapeHtml(char)}</span>`;
       i++;
+
+      // 音符の後に続く音長記号をチェック
+      let duration = '';
+      let j = i;
+
+      // 音長記号の先読み: /?\d+(/\d+)?
+      if (j < line.length && (line[j] === '/' || /\d/.test(line[j]))) {
+        // 先頭の / を取得
+        if (line[j] === '/') {
+          duration += line[j];
+          j++;
+        }
+
+        // 数字を取得
+        while (j < line.length && /\d/.test(line[j])) {
+          duration += line[j];
+          j++;
+        }
+
+        // 分数の場合: /\d+
+        if (j < line.length && line[j] === '/') {
+          duration += line[j];
+          j++;
+
+          // 分母の数字を取得
+          while (j < line.length && /\d/.test(line[j])) {
+            duration += line[j];
+            j++;
+          }
+        }
+
+        // 音長記号が有効な形式かチェック
+        if (duration && ABC_DURATION_PATTERN.test(duration)) {
+          result += `<span class="abc-duration">${escapeHtml(duration)}</span>`;
+          i = j;
+        }
+      }
+
       continue;
     }
 
