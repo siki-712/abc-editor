@@ -35,3 +35,10 @@ export interface AbcField {
 
 // フィールドの正規表現パターン
 export const ABC_FIELD_PATTERN = /^([ABCDFGHIKLMmNOPQRrSsTUVWwXZ]:)(.*)$/;
+
+// 楽譜要素の正規表現パターン
+export const ABC_NOTE_PATTERN = /[A-Ga-g]/;
+export const ABC_ACCIDENTAL_PATTERN = /[\^_=]/;
+export const ABC_BAR_PATTERN = /\|[:|\]]?|:?\|/;
+export const ABC_CHORD_BRACKET_PATTERN = /[\[\]]/;
+export const ABC_COMMENT_PATTERN = /^%.*$/;

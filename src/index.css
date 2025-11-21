@@ -15,6 +15,28 @@
   color: #a78bfa; /* 紫色 - メタ情報の値 */
 }
 
+.abc-note {
+  color: #10b981; /* 緑色 - 音符 (C, D, E, F, G, A, B) */
+}
+
+.abc-accidental {
+  color: #f59e0b; /* オレンジ色 - 臨時記号 (^シャープ, _フラット, =ナチュラル) */
+}
+
+.abc-bar {
+  color: #06b6d4; /* シアン色 - 小節線 (|, ||, |:, :|, ::) */
+  font-weight: 600;
+}
+
+.abc-chord {
+  color: #ec4899; /* ピンク色 - 和音括弧 ([...]) */
+}
+
+.abc-comment {
+  color: #6b7280; /* グレー色 - コメント (%で始まる行) */
+  font-style: italic;
+}
+
 .abc-text {
   color: #ffffff; /* 白色 - 通常のテキスト */
 }
