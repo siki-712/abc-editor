@@ -10,6 +10,251 @@ import {
   ABC_COMMENT_PATTERN,
 } from '../types/abc';
 
+// パース結果の型定義
+export interface ParseResult {
+  html: string;
+  nextIndex: number;
+  slurLevelDelta?: number; // スラーレベルの増減 (+1: 開始, -1: 終了)
+}
+
+// HTMLエスケープ
+export const escapeHtml = (text: string): string => {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
+
+// 小節線のパース
+export const parseBarLine = (line: string, index: number): ParseResult | null => {
+  const char = line[index];
+
+  if (char !== '|' && char !== ':') {
+    return null;
+  }
+
+  let barSymbol = char;
+  let j = index + 1;
+
+  // |:, :|, ||, :: などをまとめて取得
+  while (j < line.length && (line[j] === '|' || line[j] === ':' || line[j] === ']')) {
+    barSymbol += line[j];
+    j++;
+  }
+
+  if (ABC_BAR_PATTERN.test(barSymbol)) {
+    return {
+      html: `<span class="abc-bar">${escapeHtml(barSymbol)}</span>`,
+      nextIndex: j,
+    };
+  }
+
+  return null;
+};
+
+// 臨時記号のパース
+export const parseAccidental = (line: string, index: number): ParseResult | null => {
+  const char = line[index];
+
+  if (ABC_ACCIDENTAL_PATTERN.test(char)) {
+    return {
+      html: `<span class="abc-accidental">${escapeHtml(char)}</span>`,
+      nextIndex: index + 1,
+    };
+  }
+
+  return null;
+};
+
+// 連音符記号またはスラーのパース
+export const parseTupletOrSlur = (
+  line: string,
+  index: number,
+  slurLevel: number
+): ParseResult | null => {
+  const char = line[index];
+
+  if (!ABC_SLUR_PATTERN.test(char)) {
+    return null;
+  }
+
+  if (char === '(') {
+    // 次の文字が数字なら連音符記号
+    if (index + 1 < line.length && /\d/.test(line[index + 1])) {
+      let tuplet = char;
+      let j = index + 1;
+
+      // 数字を取得
+      while (j < line.length && /\d/.test(line[j])) {
+        tuplet += line[j];
+        j++;
+      }
+
+      // 連音符記号として処理
+      if (ABC_TUPLET_PATTERN.test(tuplet)) {
+        return {
+          html: `<span class="abc-tuplet">${escapeHtml(tuplet)}</span>`,
+          nextIndex: j,
+          slurLevelDelta: 0,
+        };
+      }
+    }
+
+    // 通常のスラー開始括弧
+    return {
+      html: `<span class="abc-slur abc-slur-level-${slurLevel % 5}">${escapeHtml(char)}</span>`,
+      nextIndex: index + 1,
+      slurLevelDelta: 1,
+    };
+  } else if (char === ')') {
+    // スラー終了括弧
+    const newSlurLevel = Math.max(0, slurLevel - 1);
+    return {
+      html: `<span class="abc-slur abc-slur-level-${newSlurLevel % 5}">${escapeHtml(char)}</span>`,
+      nextIndex: index + 1,
+      slurLevelDelta: -1,
+    };
+  }
+
+  return null;
+};
+
+// 音符と音長記号のパース
+export const parseNoteWithDuration = (line: string, index: number): ParseResult | null => {
+  const char = line[index];
+
+  if (!ABC_NOTE_PATTERN.test(char)) {
+    return null;
+  }
+
+  let html = `<span class="abc-note">${escapeHtml(char)}</span>`;
+  let j = index + 1;
+
+  // 音符の後に続く音長記号をチェック
+  let duration = '';
+
+  // 音長記号の先読み: /?\d+(/\d+)?
+  if (j < line.length && (line[j] === '/' || /\d/.test(line[j]))) {
+    // 先頭の / を取得
+    if (line[j] === '/') {
+      duration += line[j];
+      j++;
+    }
+
+    // 数字を取得
+    while (j < line.length && /\d/.test(line[j])) {
+      duration += line[j];
+      j++;
+    }
+
+    // 分数の場合: /\d+
+    if (j < line.length && line[j] === '/') {
+      duration += line[j];
+      j++;
+
+      // 分母の数字を取得
+      while (j < line.length && /\d/.test(line[j])) {
+        duration += line[j];
+        j++;
+      }
+    }
+
+    // 音長記号が有効な形式かチェック
+    if (duration && ABC_DURATION_PATTERN.test(duration)) {
+      // 音長記号のタイプを判定
+      let durationClass = 'abc-duration';
+
+      if (duration.startsWith('/')) {
+        // 短い音: /2, /4, /8 など
+        durationClass += ' abc-duration-short';
+      } else if (duration.includes('/')) {
+        // 混合分数: 3/2, 5/4 など
+        durationClass += ' abc-duration-fraction';
+      } else {
+        // 長い音: 2, 4, 8 など
+        durationClass += ' abc-duration-long';
+      }
+
+      html += `<span class="${durationClass}">${escapeHtml(duration)}</span>`;
+    }
+  }
+
+  return {
+    html,
+    nextIndex: j,
+  };
+};
+
+// 和音括弧のパース
+export const parseChordBracket = (line: string, index: number): ParseResult | null => {
+  const char = line[index];
+
+  if (ABC_CHORD_BRACKET_PATTERN.test(char)) {
+    return {
+      html: `<span class="abc-chord">${escapeHtml(char)}</span>`,
+      nextIndex: index + 1,
+    };
+  }
+
+  return null;
+};
+
+// 楽譜行の文字単位ハイライト
+export const highlightMusicLine = (line: string): string => {
+  let result = '';
+  let i = 0;
+  let slurLevel = 0; // スラーのネストレベル
+
+  while (i < line.length) {
+    // 各パーサーを順番に試す
+    const barLine = parseBarLine(line, i);
+    if (barLine) {
+      result += barLine.html;
+      i = barLine.nextIndex;
+      continue;
+    }
+
+    const accidental = parseAccidental(line, i);
+    if (accidental) {
+      result += accidental.html;
+      i = accidental.nextIndex;
+      continue;
+    }
+
+    const tupletOrSlur = parseTupletOrSlur(line, i, slurLevel);
+    if (tupletOrSlur) {
+      result += tupletOrSlur.html;
+      i = tupletOrSlur.nextIndex;
+      if (tupletOrSlur.slurLevelDelta) {
+        slurLevel += tupletOrSlur.slurLevelDelta;
+      }
+      continue;
+    }
+
+    const noteWithDuration = parseNoteWithDuration(line, i);
+    if (noteWithDuration) {
+      result += noteWithDuration.html;
+      i = noteWithDuration.nextIndex;
+      continue;
+    }
+
+    const chordBracket = parseChordBracket(line, i);
+    if (chordBracket) {
+      result += chordBracket.html;
+      i = chordBracket.nextIndex;
+      continue;
+    }
+
+    // その他の文字
+    result += `<span class="abc-text">${escapeHtml(line[i])}</span>`;
+    i++;
+  }
+
+  return result;
+};
+
 // ABC記法のシンタックスハイライト
 export const highlightAbc = (code: string): string => {
   const lines = code.split('\n');
@@ -32,156 +277,4 @@ export const highlightAbc = (code: string): string => {
       return highlightMusicLine(line);
     })
     .join('\n');
-};
-
-// 楽譜行の文字単位ハイライト
-const highlightMusicLine = (line: string): string => {
-  let result = '';
-  let i = 0;
-  let slurLevel = 0; // スラーのネストレベル
-
-  while (i < line.length) {
-    const char = line[i];
-
-    // 小節線（複数文字の可能性があるので先にチェック）
-    if (char === '|' || char === ':') {
-      let barSymbol = char;
-      let j = i + 1;
-
-      // |:, :|, ||, :: などをまとめて取得
-      while (j < line.length && (line[j] === '|' || line[j] === ':' || line[j] === ']')) {
-        barSymbol += line[j];
-        j++;
-      }
-
-      if (ABC_BAR_PATTERN.test(barSymbol)) {
-        result += `<span class="abc-bar">${escapeHtml(barSymbol)}</span>`;
-        i = j;
-        continue;
-      }
-    }
-
-    // 臨時記号
-    if (ABC_ACCIDENTAL_PATTERN.test(char)) {
-      result += `<span class="abc-accidental">${escapeHtml(char)}</span>`;
-      i++;
-      continue;
-    }
-
-    // 連音符とスラーの区別
-    if (ABC_SLUR_PATTERN.test(char)) {
-      if (char === '(') {
-        // 次の文字が数字なら連音符記号
-        if (i + 1 < line.length && /\d/.test(line[i + 1])) {
-          let tuplet = char;
-          let j = i + 1;
-
-          // 数字を取得
-          while (j < line.length && /\d/.test(line[j])) {
-            tuplet += line[j];
-            j++;
-          }
-
-          // 連音符記号として処理
-          if (ABC_TUPLET_PATTERN.test(tuplet)) {
-            result += `<span class="abc-tuplet">${escapeHtml(tuplet)}</span>`;
-            i = j;
-            continue;
-          }
-        }
-
-        // 通常のスラー開始括弧
-        result += `<span class="abc-slur abc-slur-level-${slurLevel % 5}">${escapeHtml(char)}</span>`;
-        slurLevel++;
-      } else if (char === ')') {
-        // スラー終了括弧
-        slurLevel = Math.max(0, slurLevel - 1);
-        result += `<span class="abc-slur abc-slur-level-${slurLevel % 5}">${escapeHtml(char)}</span>`;
-      }
-      i++;
-      continue;
-    }
-
-    // 音符（音長記号も一緒に処理）
-    if (ABC_NOTE_PATTERN.test(char)) {
-      result += `<span class="abc-note">${escapeHtml(char)}</span>`;
-      i++;
-
-      // 音符の後に続く音長記号をチェック
-      let duration = '';
-      let j = i;
-
-      // 音長記号の先読み: /?\d+(/\d+)?
-      if (j < line.length && (line[j] === '/' || /\d/.test(line[j]))) {
-        // 先頭の / を取得
-        if (line[j] === '/') {
-          duration += line[j];
-          j++;
-        }
-
-        // 数字を取得
-        while (j < line.length && /\d/.test(line[j])) {
-          duration += line[j];
-          j++;
-        }
-
-        // 分数の場合: /\d+
-        if (j < line.length && line[j] === '/') {
-          duration += line[j];
-          j++;
-
-          // 分母の数字を取得
-          while (j < line.length && /\d/.test(line[j])) {
-            duration += line[j];
-            j++;
-          }
-        }
-
-        // 音長記号が有効な形式かチェック
-        if (duration && ABC_DURATION_PATTERN.test(duration)) {
-          // 音長記号のタイプを判定
-          let durationClass = 'abc-duration';
-
-          if (duration.startsWith('/')) {
-            // 短い音: /2, /4, /8 など
-            durationClass += ' abc-duration-short';
-          } else if (duration.includes('/')) {
-            // 混合分数: 3/2, 5/4 など
-            durationClass += ' abc-duration-fraction';
-          } else {
-            // 長い音: 2, 4, 8 など
-            durationClass += ' abc-duration-long';
-          }
-
-          result += `<span class="${durationClass}">${escapeHtml(duration)}</span>`;
-          i = j;
-        }
-      }
-
-      continue;
-    }
-
-    // 和音括弧
-    if (ABC_CHORD_BRACKET_PATTERN.test(char)) {
-      result += `<span class="abc-chord">${escapeHtml(char)}</span>`;
-      i++;
-      continue;
-    }
-
-    // その他の文字
-    result += `<span class="abc-text">${escapeHtml(char)}</span>`;
-    i++;
-  }
-
-  return result;
-};
-
-// HTMLエスケープ
-const escapeHtml = (text: string): string => {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
 };
