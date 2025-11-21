@@ -7,6 +7,7 @@ import {
   parseNoteWithDuration,
   parseChordBracket,
   parseRest,
+  parseTie,
   highlightMusicLine,
   highlightAbc,
 } from './highlightAbc';
@@ -288,6 +289,41 @@ describe('parseRest', () => {
   });
 });
 
+describe('parseTie', () => {
+  it('should parse regular tie -', () => {
+    const result = parseTie('-', 0);
+    expect(result).toEqual({
+      html: '<span class="abc-tie">-</span>',
+      nextIndex: 1,
+    });
+  });
+
+  it('should parse dotted tie .-', () => {
+    const result = parseTie('.-', 0);
+    expect(result).toEqual({
+      html: '<span class="abc-tie abc-tie-dotted">.-</span>',
+      nextIndex: 2,
+    });
+  });
+
+  it('should parse tie in music context', () => {
+    const result = parseTie('C-C', 1);
+    expect(result).toEqual({
+      html: '<span class="abc-tie">-</span>',
+      nextIndex: 2,
+    });
+  });
+
+  it('should return null for non-tie characters', () => {
+    expect(parseTie('C', 0)).toBeNull();
+    expect(parseTie('|', 0)).toBeNull();
+  });
+
+  it('should return null for dot without dash', () => {
+    expect(parseTie('.C', 0)).toBeNull();
+  });
+});
+
 describe('highlightMusicLine', () => {
   it('should highlight simple note sequence', () => {
     const result = highlightMusicLine('C D E F');
@@ -384,6 +420,23 @@ describe('highlightMusicLine', () => {
     const result = highlightMusicLine('C x D x2 E');
     expect(result).toContain('<span class="abc-rest-invisible">x</span>');
     expect(result).toContain('<span class="abc-rest-invisible">x</span><span class="abc-duration abc-duration-long">2</span>');
+  });
+
+  it('should highlight ties', () => {
+    const result = highlightMusicLine('C-C D-D');
+    expect(result).toContain('<span class="abc-tie">-</span>');
+  });
+
+  it('should highlight dotted ties', () => {
+    const result = highlightMusicLine('C.-C D-D');
+    expect(result).toContain('<span class="abc-tie abc-tie-dotted">.-</span>');
+    expect(result).toContain('<span class="abc-tie">-</span>');
+  });
+
+  it('should handle ties across bar lines', () => {
+    const result = highlightMusicLine('C-|C');
+    expect(result).toContain('<span class="abc-tie">-</span>');
+    expect(result).toContain('<span class="abc-bar">|</span>');
   });
 
   it('should handle complex music line', () => {

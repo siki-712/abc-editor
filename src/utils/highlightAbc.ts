@@ -8,6 +8,7 @@ import {
   ABC_TUPLET_PATTERN,
   ABC_DURATION_PATTERN,
   ABC_REST_PATTERN,
+  ABC_TIE_PATTERN,
   ABC_COMMENT_PATTERN,
 } from '../types/abc';
 
@@ -270,6 +271,30 @@ export const parseRest = (line: string, index: number): ParseResult | null => {
   };
 };
 
+// タイのパース
+export const parseTie = (line: string, index: number): ParseResult | null => {
+  const char = line[index];
+
+  // タイは - または .- (破線タイ)
+  if (char === '-') {
+    return {
+      html: `<span class="abc-tie">${escapeHtml(char)}</span>`,
+      nextIndex: index + 1,
+    };
+  }
+
+  // 破線タイ: .-
+  if (char === '.' && index + 1 < line.length && line[index + 1] === '-') {
+    const tie = '.-';
+    return {
+      html: `<span class="abc-tie abc-tie-dotted">${escapeHtml(tie)}</span>`,
+      nextIndex: index + 2,
+    };
+  }
+
+  return null;
+};
+
 // 楽譜行の文字単位ハイライト
 export const highlightMusicLine = (line: string): string => {
   let result = '';
@@ -320,6 +345,13 @@ export const highlightMusicLine = (line: string): string => {
     if (chordBracket) {
       result += chordBracket.html;
       i = chordBracket.nextIndex;
+      continue;
+    }
+
+    const tie = parseTie(line, i);
+    if (tie) {
+      result += tie.html;
+      i = tie.nextIndex;
       continue;
     }
 

@@ -86,6 +86,15 @@
   font-weight: 700;
 }
 
+.abc-tie {
+  color: #ec4899; /* ピンク色 - タイ (-) */
+  font-weight: 600;
+}
+
+.abc-tie-dotted {
+  color: #f472b6; /* 薄いピンク色 - 破線タイ (.-) */
+}
+
 .abc-comment {
   color: #6b7280; /* グレー色 - コメント (%で始まる行) */
   font-style: italic;
