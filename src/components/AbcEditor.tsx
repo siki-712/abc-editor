@@ -41,10 +41,10 @@ export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
         {/* 行番号 */}
         <div
           ref={lineNumbersRef}
-          className="overflow-hidden text-right pl-1 pr-3 py-4 text-sm font-mono leading-relaxed text-slate-500 select-none"
+          className="overflow-hidden text-right text-sm font-mono leading-relaxed text-slate-500 select-none"
           style={{ backgroundColor: '#0f0f0f', minWidth: '2.5rem' }}
         >
-          <pre className="m-0">{lineNumbers}</pre>
+          <pre className="m-0 pl-1 pr-3 py-4">{lineNumbers}</pre>
         </div>
 
         {/* エディタエリア */}
