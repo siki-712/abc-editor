@@ -32,7 +32,7 @@ export const SuggestionList = ({
 
   return (
     <div
-      className="absolute z-50 bg-slate-800 border border-slate-600 rounded-md shadow-lg overflow-hidden"
+      className="absolute z-50 bg-slate-800 rounded-md shadow-xl overflow-hidden"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,

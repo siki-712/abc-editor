@@ -18,13 +18,13 @@ F A D E  D A G E |`);
   return (
     <div className="h-screen flex flex-col bg-slate-950" style={{ backgroundColor: colors.bg }}>
       {/* テーマ切り替えボタン */}
-      <div className="flex justify-end p-2" style={{ backgroundColor: colors.bg }}>
+      <div className="flex justify-end p-3" style={{ backgroundColor: colors.bg }}>
         <button
           onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-          className="px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          className="px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-md"
           style={{
-            backgroundColor: theme === 'dark' ? '#333' : '#ddd',
-            color: theme === 'dark' ? '#fff' : '#000'
+            backgroundColor: theme === 'dark' ? '#4a5568' : '#2563eb',
+            color: '#ffffff'
           }}
         >
           {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
@@ -39,7 +39,7 @@ F A D E  D A G E |`);
 
         {/* 右側: プレビュー */}
         <div className="w-full md:w-1/2 h-1/3 md:h-full flex flex-col p-4" style={{ backgroundColor: colors.previewBg }}>
-          <div className="w-full h-full rounded-lg border border-slate-600 overflow-auto p-4" style={{ backgroundColor: colors.previewInner }}>
+          <div className="w-full h-full rounded-lg overflow-auto p-4 shadow-lg" style={{ backgroundColor: colors.previewInner }}>
             <AbcPreview value={abc} theme={theme} />
           </div>
         </div>

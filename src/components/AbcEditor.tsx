@@ -69,7 +69,7 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
 
   return (
     <div className="w-full h-full flex flex-col p-4" data-theme={theme} style={{ backgroundColor: colors.bg }}>
-      <div className="w-full flex-1 flex flex-col rounded-lg border border-slate-600 overflow-hidden" style={{ backgroundColor: colors.editorBg }}>
+      <div className="w-full flex-1 flex flex-col rounded-lg overflow-hidden shadow-lg" style={{ backgroundColor: colors.editorBg }}>
         {/* エディタ部分 */}
         <div className="flex-1 flex overflow-hidden">
         {/* 行番号 */}
@@ -165,7 +165,7 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
         {/* エラー表示エリア */}
         {validationErrors.length > 0 && (
           <div
-            className="border-t border-slate-600 px-4 py-3 text-xs font-mono overflow-auto"
+            className="px-4 py-3 text-xs font-mono overflow-auto"
             style={{ backgroundColor: colors.lineNumBg, maxHeight: '8rem' }}
           >
             <div className="mb-2 text-[10px] uppercase tracking-wide" style={{ color: colors.errorHeader }}>
