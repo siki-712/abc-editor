@@ -1,3 +1,6 @@
+// テーマの型定義
+export type Theme = 'light' | 'dark';
+
 // ABC記法のフィールド定義
 export type AbcFieldKey =
   | 'A:' // area

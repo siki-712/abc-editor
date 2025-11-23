@@ -1,7 +1,47 @@
 @import "tailwindcss";
 
-/* シンタックスハイライト用のカラーパレット（視認性と華やかさを両立） */
+/* ライトモード用カラーパレット（デフォルト） */
 :root {
+  --abc-ink: #1a1a1a;
+  --abc-key: #0066cc;
+  --abc-value: #996300;
+  --abc-lyrics-key: #cc0066;
+  --abc-lyrics-value: #b30059;
+  --abc-note: #000000;
+  --abc-octave-high: #00994d;
+  --abc-octave-low: #6600cc;
+  --abc-rest: #666666;
+  --abc-rest-muted: #999999;
+  --abc-accidental: #b35900;
+  --abc-duration-long: #cc5200;
+  --abc-duration-short: #0099cc;
+  --abc-duration-fraction: #cc9900;
+  --abc-broken: #00b359;
+  --abc-bar: #0080cc;
+  --abc-bar-double: #0066cc;
+  --abc-chord: #cc0099;
+  --abc-slur-0: #cc004d;
+  --abc-slur-1: #cc8000;
+  --abc-slur-2: #0080cc;
+  --abc-slur-3: #00b359;
+  --abc-slur-4: #7700cc;
+  --abc-tuplet: #00b359;
+  --abc-tie: #cc0066;
+  --abc-tie-dotted: #cc0080;
+  --abc-ornament: #5566cc;
+  --abc-chord-symbol: #00997a;
+  --abc-annotation: #cc8800;
+  --abc-decoration: #8866cc;
+  --abc-grace: #66b300;
+  --abc-volta: #cc6600;
+  --abc-inline-bracket: #666666;
+  --abc-inline-key: #0066cc;
+  --abc-inline-value: #996600;
+  --abc-comment: #999999;
+}
+
+/* ダークモード用カラーパレット */
+[data-theme="dark"] {
   --abc-ink: #e8f1ff;
   --abc-key: #7ad7ff;
   --abc-value: #ffd48a;
@@ -40,15 +80,23 @@
   --abc-comment: #7b8797;
 }
 
-/* ABC楽譜のテキストを白色に */
+/* ABC楽譜のテキスト色 */
 .abc-preview svg text {
+  fill: #000000 !important;
+}
+
+[data-theme="dark"] .abc-preview svg text {
   fill: #ffffff !important;
 }
 
 /* エディタのプレースホルダーの色 */
 textarea::placeholder {
-  color: #64748b;
+  color: #999999;
   opacity: 1;
+}
+
+[data-theme="dark"] textarea::placeholder {
+  color: #64748b;
 }
 
 /* シンタックスハイライトの色定義 */

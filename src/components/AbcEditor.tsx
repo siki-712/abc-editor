@@ -4,13 +4,15 @@ import { highlightAbc } from "../utils/highlightAbc";
 import { useAbcAutoComplete } from "../hooks/useAbcAutoComplete";
 import { SuggestionList } from "./SuggestionList";
 import { validateAbc, type ValidationError } from "../utils/validateAbc";
+import type { Theme } from "../types/abc";
 
 interface AbcEditorProps {
   value: string;
   onChange: (value: string) => void;
+  theme?: Theme;
 }
 
-export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
+export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
@@ -19,6 +21,11 @@ export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
   const lineNumbers = useLineNumbers(value);
   const highlightedCode = highlightAbc(value);
   const validationErrors = useMemo(() => validateAbc(value), [value]);
+
+  // テーマごとの色設定
+  const colors = theme === 'dark'
+    ? { bg: '#161616', editorBg: '#1a1a1a', lineNumBg: '#0f0f0f', caretColor: '#fff', placeholderColor: '#64748b' }
+    : { bg: '#f5f5f5', editorBg: '#ffffff', lineNumBg: '#eeeeee', caretColor: '#000', placeholderColor: '#999999' };
 
   // オートコンプリート機能
   const {
@@ -39,15 +46,15 @@ export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col p-4" style={{ backgroundColor: '#161616' }}>
-      <div className="w-full flex-1 flex flex-col rounded-lg border border-slate-600 overflow-hidden" style={{ backgroundColor: '#1a1a1a' }}>
+    <div className="w-full h-full flex flex-col p-4" data-theme={theme} style={{ backgroundColor: colors.bg }}>
+      <div className="w-full flex-1 flex flex-col rounded-lg border border-slate-600 overflow-hidden" style={{ backgroundColor: colors.editorBg }}>
         {/* エディタ部分 */}
         <div className="flex-1 flex overflow-hidden">
         {/* 行番号 */}
         <div
           ref={lineNumbersRef}
           className="overflow-hidden text-right text-sm font-mono leading-relaxed text-slate-500 select-none"
-          style={{ backgroundColor: '#0f0f0f', minWidth: '2.5rem' }}
+          style={{ backgroundColor: colors.lineNumBg, minWidth: '2.5rem' }}
         >
           <pre className="m-0 pl-1 pr-3 py-4">{lineNumbers}</pre>
         </div>
@@ -59,7 +66,7 @@ export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
             ref={highlightRef}
             className="absolute inset-0 overflow-hidden px-4 py-4 text-sm font-mono leading-relaxed pointer-events-none"
             style={{
-              backgroundColor: '#1a1a1a',
+              backgroundColor: colors.editorBg,
               opacity: hoveredError ? 0.3 : 1,
               transition: 'opacity 0.2s'
             }}
@@ -110,7 +117,7 @@ export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
           <textarea
             ref={textareaRef}
             className="absolute inset-0 w-full h-full resize-none px-4 py-4 text-sm font-mono leading-relaxed outline-none border-0"
-            style={{ backgroundColor: 'transparent', color: 'transparent', caretColor: '#fff' }}
+            style={{ backgroundColor: 'transparent', color: 'transparent', caretColor: colors.caretColor }}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onScroll={handleScroll}
@@ -136,7 +143,7 @@ export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
         {validationErrors.length > 0 && (
           <div
             className="border-t border-slate-600 px-4 py-3 text-xs font-mono overflow-auto"
-            style={{ backgroundColor: '#0f0f0f', maxHeight: '8rem' }}
+            style={{ backgroundColor: colors.lineNumBg, maxHeight: '8rem' }}
           >
             <div className="text-slate-500 mb-2 text-[10px] uppercase tracking-wide">
               Validation Errors ({validationErrors.length})

@@ -17,6 +17,7 @@ export type { ValidationError } from '../src/utils/validateAbc';
 
 // Types
 export type {
+  Theme,
   AbcField,
   AbcFieldKey,
 } from '../src/types/abc';
