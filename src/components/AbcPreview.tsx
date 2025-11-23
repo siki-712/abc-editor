@@ -8,9 +8,14 @@ export const AbcPreview = ({ abc }: { abc: string }) => {
     if (ref.current) {
       abcjs.renderAbc(ref.current, abc, {
         responsive: "resize",
+        foregroundColor: "#ffffff",
+        format: {
+          titlefont: "serif 20",
+          textcolor: "#ffffff",
+        },
       });
     }
   }, [abc]);
 
-  return <div ref={ref} className="w-full" />;
+  return <div ref={ref} className="w-full abc-preview" />;
 };

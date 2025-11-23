@@ -1,1 +1,211 @@
 @import "tailwindcss";
+
+/* シンタックスハイライト用のカラーパレット（視認性と華やかさを両立） */
+:root {
+  --abc-ink: #e8f1ff;
+  --abc-key: #7ad7ff;
+  --abc-value: #ffd48a;
+  --abc-lyrics-key: #ff7ba1;
+  --abc-lyrics-value: #ffc8d8;
+  --abc-note: #f8fbff;
+  --abc-octave-high: #73f8c4;
+  --abc-octave-low: #c7b3ff;
+  --abc-rest: #8ca3b8;
+  --abc-rest-muted: #596779;
+  --abc-accidental: #f2c079;
+  --abc-duration-long: #ffa25f;
+  --abc-duration-short: #6edff6;
+  --abc-duration-fraction: #ffe38f;
+  --abc-broken: #7be495;
+  --abc-bar: #79cfff;
+  --abc-chord: #ff8ccf;
+  --abc-slur-0: #ff92b2;
+  --abc-slur-1: #ffd77a;
+  --abc-slur-2: #7ed4ff;
+  --abc-slur-3: #92f3c6;
+  --abc-slur-4: #c6a9ff;
+  --abc-tuplet: #82f0a2;
+  --abc-tie: #f07fb3;
+  --abc-tie-dotted: #ff9ecf;
+  --abc-ornament: #9fb0ff;
+  --abc-chord-symbol: #63f5d3;
+  --abc-annotation: #ffd88a;
+  --abc-decoration: #d1a6ff;
+  --abc-grace: #a4f28f;
+  --abc-volta: #f9a15a;
+  --abc-inline-bracket: #8ca7c0;
+  --abc-inline-key: #7ad7ff;
+  --abc-inline-value: #ffdcb2;
+  --abc-comment: #7b8797;
+}
+
+/* ABC楽譜のテキストを白色に */
+.abc-preview svg text {
+  fill: #ffffff !important;
+}
+
+/* シンタックスハイライトの色定義 */
+.abc-meta-key {
+  color: var(--abc-key); /* 青みのアクセント - メタ情報のキー (X:, T:, M:, K:など) */
+  font-weight: 600;
+}
+
+.abc-meta-value {
+  color: var(--abc-value); /* ゴールデンアンバー - メタ情報の値 */
+}
+
+.abc-lyrics-key {
+  color: var(--abc-lyrics-key); /* ビビッドローズ - 歌詞フィールドのキー (w:, W:) */
+  font-weight: 600;
+}
+
+.abc-lyrics-value {
+  color: var(--abc-lyrics-value); /* ソフトローズ - 歌詞テキスト */
+}
+
+.abc-note {
+  color: var(--abc-note); /* 白色寄りのインク - 音符 (C, D, E, F, G, A, B) */
+}
+.abc-octave-high {
+  color: var(--abc-octave-high); /* クリアミント - 高オクターブ記号 (', '', etc.) */
+  font-weight: 600;
+}
+
+.abc-octave-low {
+  color: var(--abc-octave-low); /* ラベンダーバイオレット - 低オクターブ記号 (,, ,,, etc.) */
+  font-weight: 600;
+}
+
+.abc-rest {
+  color: var(--abc-rest); /* スモークグレー - 休符 (z, Z) */
+}
+
+.abc-rest-invisible {
+  color: var(--abc-rest-muted); /* トーンダウンしたグレー - 見えない休符 (x) */
+  opacity: 0.5;
+}
+
+.abc-accidental {
+  color: var(--abc-accidental); /* 琥珀色 - 臨時記号 (^シャープ, _フラット, =ナチュラル) */
+}
+
+.abc-duration {
+  font-weight: 600;
+}
+
+.abc-duration-long {
+  color: var(--abc-duration-long); /* コーラルアンバー - 長い音 (2, 4, 8 など) */
+}
+
+.abc-duration-short {
+  color: var(--abc-duration-short); /* クリアシアン - 短い音 (/2, /4, /8 など) */
+}
+
+.abc-duration-fraction {
+  color: var(--abc-duration-fraction); /* ハニーイエロー - 混合分数 (3/2, 5/4 など) */
+}
+
+.abc-broken-rhythm {
+  color: var(--abc-broken); /* フレッシュグリーン - ブロークンリズム (>, <, >>, << など) */
+  font-weight: 700;
+}
+
+.abc-bar {
+  color: var(--abc-bar); /* スカイシアン - 小節線 (|, ||, |:, :|, ::) */
+  font-weight: 600;
+}
+
+.abc-chord {
+  color: var(--abc-chord); /* ネオンサクラ - 和音括弧 ([...]) */
+}
+
+.abc-slur {
+  font-weight: 700;
+}
+
+.abc-slur-level-0 {
+  color: var(--abc-slur-0); /* ローズレッド - スラーレベル0（外側） */
+}
+
+.abc-slur-level-1 {
+  color: var(--abc-slur-1); /* サンイエロー - スラーレベル1（1段ネスト） */
+}
+
+.abc-slur-level-2 {
+  color: var(--abc-slur-2); /* クリスタルブルー - スラーレベル2（2段ネスト） */
+}
+
+.abc-slur-level-3 {
+  color: var(--abc-slur-3); /* ミントシアン - スラーレベル3（3段ネスト） */
+}
+
+.abc-slur-level-4 {
+  color: var(--abc-slur-4); /* ライトラベンダー - スラーレベル4（4段ネスト） */
+}
+
+.abc-tuplet {
+  color: var(--abc-tuplet); /* ブライトミント - 連音符記号 ((3, (5, (7 など) */
+  font-weight: 700;
+}
+
+.abc-tie {
+  color: var(--abc-tie); /* ラズベリーフロスト - タイ (-) */
+  font-weight: 600;
+}
+
+.abc-tie-dotted {
+  color: var(--abc-tie-dotted); /* グレイズドピンク - 破線タイ (.-) */
+}
+
+.abc-ornament {
+  color: var(--abc-ornament); /* パールインディゴ - 装飾記号 (., ~, H, L, M, O, P, S, T, u, v) */
+  font-weight: 700;
+}
+
+.abc-chord-symbol {
+  color: var(--abc-chord-symbol); /* アクアミント - コード記号 ("C", "Am7", "Dm7/F" など) */
+  font-weight: 700;
+}
+
+.abc-annotation {
+  color: var(--abc-annotation); /* アンバーグロー - 注釈 ("^above", "_below" など) */
+  font-weight: 600;
+  font-style: italic;
+}
+
+.abc-decoration {
+  color: var(--abc-decoration); /* ライラック - 装飾記号 (!trill!, !fermata!, !p!, !f! など) */
+  font-weight: 700;
+}
+
+.abc-grace-note {
+  color: var(--abc-grace); /* ライムシャンパン - 装飾音 ({g}A, {/g}C, {gef}e など) */
+  font-weight: 600;
+}
+
+.abc-volta-bracket {
+  color: var(--abc-volta); /* バーニングアンバー - 反復記号 ([1, [2, [3 など) */
+  font-weight: 700;
+}
+
+.abc-inline-field-bracket {
+  color: var(--abc-inline-bracket); /* スレートグレー - インラインフィールド括弧 */
+}
+
+.abc-inline-field-key {
+  color: var(--abc-inline-key); /* 青みのアクセント - インラインフィールドのキー */
+  font-weight: 600;
+}
+
+.abc-inline-field-value {
+  color: var(--abc-inline-value); /* サンドゴールド - インラインフィールドの値 */
+}
+
+.abc-comment {
+  color: var(--abc-comment); /* スモークグレー - コメント (%で始まる行) */
+  font-style: italic;
+}
+
+.abc-text {
+  color: var(--abc-ink); /* 明るいインク色 - 通常のテキスト */
+}
