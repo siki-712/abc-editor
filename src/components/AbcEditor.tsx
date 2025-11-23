@@ -36,7 +36,7 @@ export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
   };
 
   return (
-    <div className="w-full md:w-1/2 h-2/3 md:h-full border-b md:border-b-0 md:border-r border-slate-700 flex flex-col p-4" style={{ backgroundColor: '#161616' }}>
+    <div className="w-full md:w-1/2 h-2/3 md:h-full flex flex-col p-4" style={{ backgroundColor: '#161616' }}>
       <div className="w-full h-full flex rounded-lg border border-slate-600 overflow-hidden" style={{ backgroundColor: '#1a1a1a' }}>
         {/* 行番号 */}
         <div
