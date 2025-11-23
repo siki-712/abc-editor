@@ -1,9 +1,9 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState } from "react";
 import { useLineNumbers } from "../hooks/useLineNumbers";
 import { highlightAbc } from "../utils/highlightAbc";
 import { useAbcAutoComplete } from "../hooks/useAbcAutoComplete";
 import { SuggestionList } from "./SuggestionList";
-import { validateAbc } from "../utils/validateAbc";
+import { validateAbc, type ValidationError } from "../utils/validateAbc";
 
 interface AbcEditorProps {
   value: string;
@@ -14,6 +14,7 @@ export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
+  const [hoveredError, setHoveredError] = useState<ValidationError | null>(null);
 
   const lineNumbers = useLineNumbers(value);
   const highlightedCode = highlightAbc(value);
@@ -57,13 +58,53 @@ export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
           <div
             ref={highlightRef}
             className="absolute inset-0 overflow-hidden px-4 py-4 text-sm font-mono leading-relaxed pointer-events-none"
-            style={{ backgroundColor: '#1a1a1a' }}
+            style={{
+              backgroundColor: '#1a1a1a',
+              opacity: hoveredError ? 0.3 : 1,
+              transition: 'opacity 0.2s'
+            }}
           >
             <pre
               className="m-0"
               dangerouslySetInnerHTML={{ __html: highlightedCode }}
             />
           </div>
+
+          {/* ホバー中の小節ハイライト */}
+          {hoveredError && (() => {
+            const lines = value.split('\n');
+            const errorLine = lines[hoveredError.line] || '';
+            const errorMeasure = errorLine.substring(hoveredError.startCol, hoveredError.endCol);
+            const highlightedMeasure = highlightAbc(errorMeasure);
+
+            return (
+              <div
+                className="absolute inset-0 overflow-hidden px-4 py-4 text-sm font-mono leading-relaxed pointer-events-none"
+                style={{ backgroundColor: 'transparent' }}
+              >
+                <pre className="m-0">
+                  {lines.map((line, lineIndex) => {
+                    if (lineIndex === hoveredError.line) {
+                      const before = line.substring(0, hoveredError.startCol);
+                      const after = line.substring(hoveredError.endCol);
+
+                      return (
+                        <div key={lineIndex}>
+                          <span style={{ opacity: 0 }}>{before}</span>
+                          <span
+                            className="bg-amber-500/20 px-1 rounded"
+                            dangerouslySetInnerHTML={{ __html: highlightedMeasure }}
+                          />
+                          <span style={{ opacity: 0 }}>{after}</span>
+                        </div>
+                      );
+                    }
+                    return <div key={lineIndex} style={{ opacity: 0 }}>{line}</div>;
+                  })}
+                </pre>
+              </div>
+            );
+          })()}
 
           {/* テキストエリア */}
           <textarea
@@ -103,7 +144,9 @@ export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
             {validationErrors.map((error, index) => (
               <div
                 key={index}
-                className="flex items-start gap-3 mb-2 last:mb-0 hover:bg-slate-800/30 px-2 py-1 rounded transition-colors"
+                className="flex items-start gap-3 mb-2 last:mb-0 hover:bg-slate-800/30 px-2 py-1 rounded transition-colors cursor-pointer"
+                onMouseEnter={() => setHoveredError(error)}
+                onMouseLeave={() => setHoveredError(null)}
               >
                 <span className="text-amber-500 shrink-0 mt-0.5">⚠️</span>
                 <div className="flex-1 flex gap-2">
