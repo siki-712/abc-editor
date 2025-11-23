@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, type KeyboardEvent, type RefObject } from 'react';
 import { ABC_FIELD_PATTERN, type AbcFieldKey } from '../types/abc';
 import { getSuggestionsForField, type Suggestion } from '../data/abcSuggestions';
+import { getCommandSuggestions } from '../data/abcCommands';
 
 interface UseAbcAutoCompleteProps {
   value: string;
@@ -15,6 +16,7 @@ interface AutoCompleteState {
   position: { top: number; left: number };
   fieldKey: AbcFieldKey | null;
   inputValue: string;
+  isCommand: boolean; // コマンド入力モードかどうか
 }
 
 export const useAbcAutoComplete = ({
@@ -29,6 +31,7 @@ export const useAbcAutoComplete = ({
     position: { top: 0, left: 0 },
     fieldKey: null,
     inputValue: '',
+    isCommand: false,
   });
 
   // カーソル位置から現在の行とフィールド情報を取得
@@ -41,6 +44,17 @@ export const useAbcAutoComplete = ({
     const lines = value.substring(0, cursorPos).split('\n');
     const currentLine = lines[lines.length - 1];
 
+    // コマンド入力のチェック（/で始まる行）
+    if (currentLine.startsWith('/')) {
+      return {
+        fieldKey: null,
+        inputValue: currentLine,
+        line: currentLine,
+        lineStartPos: cursorPos - currentLine.length,
+        isCommand: true,
+      };
+    }
+
     // ABC記法のフィールドパターンにマッチするかチェック
     const match = currentLine.match(ABC_FIELD_PATTERN);
 
@@ -51,6 +65,7 @@ export const useAbcAutoComplete = ({
         inputValue: val,
         line: currentLine,
         lineStartPos: cursorPos - currentLine.length,
+        isCommand: false,
       };
     }
 
@@ -91,12 +106,19 @@ export const useAbcAutoComplete = ({
       return;
     }
 
-    const allSuggestions = getSuggestionsForField(lineInfo.fieldKey);
+    let filteredSuggestions: Suggestion[] = [];
 
-    // 入力値でフィルタリング
-    const filteredSuggestions = allSuggestions.filter((suggestion) =>
-      suggestion.value.toLowerCase().startsWith(lineInfo.inputValue.toLowerCase())
-    );
+    if (lineInfo.isCommand) {
+      // コマンド候補を取得
+      filteredSuggestions = getCommandSuggestions(lineInfo.inputValue);
+    } else if (lineInfo.fieldKey) {
+      // フィールド候補を取得
+      const allSuggestions = getSuggestionsForField(lineInfo.fieldKey);
+      // 入力値でフィルタリング
+      filteredSuggestions = allSuggestions.filter((suggestion) =>
+        suggestion.value.toLowerCase().startsWith(lineInfo.inputValue.toLowerCase())
+      );
+    }
 
     if (filteredSuggestions.length > 0) {
       const position = calculatePosition();
@@ -107,6 +129,7 @@ export const useAbcAutoComplete = ({
         position,
         fieldKey: lineInfo.fieldKey,
         inputValue: lineInfo.inputValue,
+        isCommand: lineInfo.isCommand,
       });
     } else {
       setState((prev) => ({ ...prev, isOpen: false }));
@@ -117,7 +140,7 @@ export const useAbcAutoComplete = ({
   // 候補を選択してテキストに挿入
   const selectSuggestion = useCallback(
     (suggestion: Suggestion) => {
-      if (!textareaRef.current || !state.fieldKey) {
+      if (!textareaRef.current) {
         return;
       }
 
@@ -125,16 +148,25 @@ export const useAbcAutoComplete = ({
       const lines = value.substring(0, cursorPos).split('\n');
       const currentLine = lines[lines.length - 1];
 
-      // フィールドキーの後の値を候補の値で置き換え
-      const newLine = state.fieldKey + suggestion.value;
-      const beforeLine = value.substring(
-        0,
-        cursorPos - currentLine.length
-      );
-      const afterLine = value.substring(cursorPos);
+      let newValue: string;
+      let newCursorPos: number;
 
-      const newValue = beforeLine + newLine + afterLine;
-      const newCursorPos = beforeLine.length + newLine.length;
+      if (state.isCommand && suggestion.template) {
+        // コマンドの場合：行全体をテンプレートで置き換え
+        const beforeLine = value.substring(0, cursorPos - currentLine.length);
+        const afterLine = value.substring(cursorPos);
+        newValue = beforeLine + suggestion.template + afterLine;
+        newCursorPos = beforeLine.length + suggestion.template.length;
+      } else if (state.fieldKey) {
+        // フィールドの場合：フィールドキーの後の値を候補の値で置き換え
+        const newLine = state.fieldKey + suggestion.value;
+        const beforeLine = value.substring(0, cursorPos - currentLine.length);
+        const afterLine = value.substring(cursorPos);
+        newValue = beforeLine + newLine + afterLine;
+        newCursorPos = beforeLine.length + newLine.length;
+      } else {
+        return;
+      }
 
       onChange(newValue);
 
@@ -149,7 +181,7 @@ export const useAbcAutoComplete = ({
 
       setState((prev) => ({ ...prev, isOpen: false }));
     },
-    [textareaRef, state.fieldKey, value, onChange]
+    [textareaRef, state.fieldKey, state.isCommand, value, onChange]
   );
 
   // キーボード操作を処理

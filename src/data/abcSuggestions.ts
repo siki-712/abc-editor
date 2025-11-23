@@ -3,6 +3,7 @@ import type { AbcFieldKey } from '../types/abc';
 export interface Suggestion {
   value: string;
   description?: string;
+  template?: string; // コマンド用のテンプレート（/headerなど）
 }
 
 // ABC記法の各フィールドに対する候補データ
