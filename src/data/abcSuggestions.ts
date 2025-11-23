@@ -1,0 +1,115 @@
+import type { AbcFieldKey } from '../types/abc';
+
+export interface Suggestion {
+  value: string;
+  description: string;
+}
+
+// ABC記法の各フィールドに対する候補データ
+export const ABC_SUGGESTIONS: Record<AbcFieldKey, Suggestion[]> = {
+  'X:': [
+    { value: '1', description: 'Reference number 1' },
+    { value: '2', description: 'Reference number 2' },
+  ],
+  'T:': [
+    { value: 'タイトル', description: 'Japanese title template' },
+    { value: 'Untitled', description: 'Default title' },
+  ],
+  'M:': [
+    { value: '4/4', description: 'Common time' },
+    { value: '3/4', description: 'Waltz time' },
+    { value: '2/4', description: 'March time' },
+    { value: '6/8', description: 'Compound duple' },
+    { value: '9/8', description: 'Compound triple' },
+    { value: '12/8', description: 'Compound quadruple' },
+    { value: '5/4', description: 'Quintuple meter' },
+    { value: '7/8', description: 'Septuple meter' },
+    { value: 'C', description: 'Common time (4/4)' },
+    { value: 'C|', description: 'Cut time (2/2)' },
+  ],
+  'L:': [
+    { value: '1/4', description: 'Quarter note' },
+    { value: '1/8', description: 'Eighth note' },
+    { value: '1/16', description: 'Sixteenth note' },
+  ],
+  'Q:': [
+    { value: '1/4=120', description: 'Quarter note = 120 BPM' },
+    { value: '1/4=100', description: 'Quarter note = 100 BPM' },
+    { value: '1/4=80', description: 'Quarter note = 80 BPM' },
+    { value: '1/8=180', description: 'Eighth note = 180 BPM' },
+  ],
+  'K:': [
+    { value: 'C', description: 'C major' },
+    { value: 'G', description: 'G major' },
+    { value: 'D', description: 'D major' },
+    { value: 'A', description: 'A major' },
+    { value: 'E', description: 'E major' },
+    { value: 'B', description: 'B major' },
+    { value: 'F#', description: 'F sharp major' },
+    { value: 'C#', description: 'C sharp major' },
+    { value: 'F', description: 'F major' },
+    { value: 'Bb', description: 'B flat major' },
+    { value: 'Eb', description: 'E flat major' },
+    { value: 'Ab', description: 'A flat major' },
+    { value: 'Db', description: 'D flat major' },
+    { value: 'Gb', description: 'G flat major' },
+    { value: 'Cb', description: 'C flat major' },
+    { value: 'Am', description: 'A minor' },
+    { value: 'Em', description: 'E minor' },
+    { value: 'Bm', description: 'B minor' },
+    { value: 'F#m', description: 'F sharp minor' },
+    { value: 'C#m', description: 'C sharp minor' },
+    { value: 'G#m', description: 'G sharp minor' },
+    { value: 'D#m', description: 'D sharp minor' },
+    { value: 'Dm', description: 'D minor' },
+    { value: 'Gm', description: 'G minor' },
+    { value: 'Cm', description: 'C minor' },
+    { value: 'Fm', description: 'F minor' },
+    { value: 'Bbm', description: 'B flat minor' },
+    { value: 'Ebm', description: 'E flat minor' },
+    { value: 'Abm', description: 'A flat minor' },
+  ],
+  'C:': [
+    { value: 'Traditional', description: 'Traditional composer' },
+    { value: 'Unknown', description: 'Unknown composer' },
+  ],
+  'R:': [
+    { value: 'reel', description: 'Reel rhythm' },
+    { value: 'jig', description: 'Jig rhythm' },
+    { value: 'hornpipe', description: 'Hornpipe rhythm' },
+    { value: 'waltz', description: 'Waltz rhythm' },
+    { value: 'march', description: 'March rhythm' },
+  ],
+  'A:': [],
+  'B:': [],
+  'D:': [],
+  'F:': [],
+  'G:': [],
+  'H:': [],
+  'I:': [],
+  'm:': [],
+  'N:': [],
+  'O:': [],
+  'P:': [
+    { value: 'AABB', description: 'Parts: AABB' },
+    { value: 'ABCD', description: 'Parts: ABCD' },
+  ],
+  'r:': [],
+  'S:': [],
+  's:': [],
+  'U:': [],
+  'V:': [
+    { value: '1', description: 'Voice 1' },
+    { value: '2', description: 'Voice 2' },
+    { value: 'T', description: 'Tenor voice' },
+    { value: 'B', description: 'Bass voice' },
+  ],
+  'W:': [],
+  'w:': [],
+  'Z:': [],
+};
+
+// フィールドキーから候補を取得する関数
+export const getSuggestionsForField = (fieldKey: AbcFieldKey): Suggestion[] => {
+  return ABC_SUGGESTIONS[fieldKey] || [];
+};

@@ -1,6 +1,8 @@
 import { useRef } from "react";
 import { useLineNumbers } from "../hooks/useLineNumbers";
 import { highlightAbc } from "../utils/highlightAbc";
+import { useAbcAutoComplete } from "../hooks/useAbcAutoComplete";
+import { SuggestionList } from "./SuggestionList";
 
 interface AbcEditorProps {
   value: string;
@@ -14,6 +16,17 @@ export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
 
   const lineNumbers = useLineNumbers(value);
   const highlightedCode = highlightAbc(value);
+
+  // オートコンプリート機能
+  const {
+    isOpen,
+    suggestions,
+    selectedIndex,
+    position,
+    handleKeyDown,
+    selectSuggestion,
+    handleMouseEnter,
+  } = useAbcAutoComplete({ value, textareaRef, onChange });
 
   const handleScroll = () => {
     if (textareaRef.current && lineNumbersRef.current && highlightRef.current) {
@@ -56,9 +69,21 @@ export const AbcEditor = ({ value, onChange }: AbcEditorProps) => {
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onScroll={handleScroll}
+            onKeyDown={handleKeyDown}
             spellCheck={false}
             placeholder="ABC記法を入力..."
           />
+
+          {/* オートコンプリート候補リスト */}
+          {isOpen && (
+            <SuggestionList
+              suggestions={suggestions}
+              selectedIndex={selectedIndex}
+              position={position}
+              onSelect={selectSuggestion}
+              onMouseEnter={handleMouseEnter}
+            />
+          )}
         </div>
       </div>
     </div>

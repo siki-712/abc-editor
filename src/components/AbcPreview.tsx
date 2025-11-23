@@ -11,7 +11,6 @@ export const AbcPreview = ({ abc }: { abc: string }) => {
         foregroundColor: "#ffffff",
         format: {
           titlefont: "serif 20",
-          textcolor: "#ffffff",
         },
       });
     }
