@@ -1,3 +1,6 @@
+// Styles - Import CSS to include in bundle
+import '../src/index.css';
+
 // Main Components
 export { AbcEditor } from '../src/components/AbcEditor';
 export { AbcPreview } from '../src/components/AbcPreview';

@@ -1,6 +1,6 @@
 {
   "name": "@ovnonvo/abc-editor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A React component for editing ABC music notation with syntax highlighting, autocomplete, and validation",
   "type": "module",
   "main": "./dist/abc-editor.cjs.js",
@@ -12,7 +12,7 @@
       "import": "./dist/abc-editor.es.js",
       "require": "./dist/abc-editor.cjs.js"
     },
-    "./styles": "./dist/style.css"
+    "./styles.css": "./dist/abc-editor.css"
   },
   "files": [
     "dist",

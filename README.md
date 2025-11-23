@@ -14,13 +14,13 @@ A React component for editing ABC music notation with syntax highlighting, autoc
 ## Installation
 
 ```bash
-npm install @yourusername/abc-editor
+npm install @ovnonvo/abc-editor
 ```
 
 or
 
 ```bash
-yarn add @yourusername/abc-editor
+yarn add @ovnonvo/abc-editor
 ```
 
 ## Peer Dependencies
@@ -47,7 +47,9 @@ npm install react react-dom abcjs
 
 ```tsx
 import { useState } from 'react';
-import { AbcEditor, AbcPreview } from '@yourusername/abc-editor';
+import { AbcEditor, AbcPreview } from '@ovnonvo/abc-editor';
+// Import styles
+import '@ovnonvo/abc-editor/styles.css';
 
 function App() {
   const [abcCode, setAbcCode] = useState(`X:1
@@ -66,6 +68,8 @@ C D E F | G A B c |`);
 
 export default App;
 ```
+
+**Important:** Don't forget to import the CSS file to get the proper styling!
 
 ### Components
 
@@ -115,7 +119,7 @@ The editor validates measure beat counts based on the time signature (M:) and un
 Generates line numbers for the editor.
 
 ```tsx
-import { useLineNumbers } from '@yourusername/abc-editor';
+import { useLineNumbers } from '@ovnonvo/abc-editor';
 
 const lineNumbers = useLineNumbers(abcCode);
 ```
@@ -125,7 +129,7 @@ const lineNumbers = useLineNumbers(abcCode);
 Provides autocomplete functionality for ABC notation.
 
 ```tsx
-import { useAbcAutoComplete } from '@yourusername/abc-editor';
+import { useAbcAutoComplete } from '@ovnonvo/abc-editor';
 
 const {
   isOpen,
@@ -149,7 +153,7 @@ const {
 Returns syntax-highlighted HTML for ABC notation.
 
 ```tsx
-import { highlightAbc } from '@yourusername/abc-editor';
+import { highlightAbc } from '@ovnonvo/abc-editor';
 
 const highlighted = highlightAbc('C D E F | G A B c |');
 ```
@@ -159,7 +163,7 @@ const highlighted = highlightAbc('C D E F | G A B c |');
 Validates ABC notation and returns errors.
 
 ```tsx
-import { validateAbc } from '@yourusername/abc-editor';
+import { validateAbc } from '@ovnonvo/abc-editor';
 
 const errors = validateAbc(abcCode);
 ```
@@ -171,14 +175,20 @@ import type {
   AbcField,
   AbcFieldKey,
   ValidationError,
-} from '@yourusername/abc-editor';
+} from '@ovnonvo/abc-editor';
 ```
 
 ## Styling
 
-The editor uses Tailwind CSS internally. Make sure your project supports Tailwind or includes the generated CSS.
+The package includes pre-built CSS with all necessary styles. Simply import the CSS file as shown in the usage example:
 
-If you need custom styling, you can override the default classes or wrap the components in your own styled containers.
+```tsx
+import '@ovnonvo/abc-editor/styles.css';
+```
+
+**Note:** You don't need to install or configure Tailwind CSS in your project. All styles are included in the package.
+
+If you need custom styling, you can override the CSS variables defined in the stylesheet or add your own CSS rules.
 
 ## Development
 
