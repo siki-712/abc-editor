@@ -56,9 +56,11 @@ describe('abcSuggestions', () => {
       expect(suggestions.length).toBeGreaterThan(0);
     });
 
-    it('should return empty array for fields without suggestions', () => {
+    it('should return suggestions for A: (area)', () => {
       const suggestions = getSuggestionsForField('A:');
-      expect(suggestions).toEqual([]);
+      expect(suggestions.length).toBeGreaterThan(0);
+      expect(suggestions[0]).toHaveProperty('value');
+      expect(suggestions[0]).toHaveProperty('description');
     });
   });
 });

@@ -80,33 +80,78 @@ export const ABC_SUGGESTIONS: Record<AbcFieldKey, Suggestion[]> = {
     { value: 'waltz', description: 'Waltz rhythm' },
     { value: 'march', description: 'March rhythm' },
   ],
-  'A:': [],
-  'B:': [],
-  'D:': [],
-  'F:': [],
-  'G:': [],
-  'H:': [],
-  'I:': [],
-  'm:': [],
-  'N:': [],
-  'O:': [],
+  'A:': [
+    { value: 'Ireland', description: 'Area: Ireland' },
+    { value: 'Scotland', description: 'Area: Scotland' },
+    { value: 'England', description: 'Area: England' },
+    { value: 'USA', description: 'Area: USA' },
+    { value: 'Japan', description: 'Area: Japan' },
+  ],
+  'B:': [
+    { value: 'The Session', description: 'Book: The Session' },
+    { value: "O'Neill's Music of Ireland", description: "Book: O'Neill's Music of Ireland" },
+  ],
+  'D:': [
+    { value: 'Album Name (Year)', description: 'Discography template' },
+  ],
+  'F:': [
+    { value: 'https://thesession.org/', description: 'File URL template' },
+  ],
+  'G:': [
+    { value: 'Group name', description: 'Group template' },
+  ],
+  'H:': [
+    { value: 'History note', description: 'History template' },
+  ],
+  'I:': [
+    { value: 'abc-charset utf-8', description: 'Character set: UTF-8' },
+  ],
+  'm:': [
+    { value: '~g2 = {a}g{f}g', description: 'Macro definition template' },
+  ],
+  'N:': [
+    { value: 'Note text', description: 'Notes template' },
+  ],
+  'O:': [
+    { value: 'Traditional', description: 'Origin: Traditional' },
+    { value: 'Ireland', description: 'Origin: Ireland' },
+    { value: 'Scotland', description: 'Origin: Scotland' },
+  ],
   'P:': [
     { value: 'AABB', description: 'Parts: AABB' },
     { value: 'ABCD', description: 'Parts: ABCD' },
+    { value: 'A', description: 'Part: A' },
+    { value: 'B', description: 'Part: B' },
   ],
-  'r:': [],
-  'S:': [],
-  's:': [],
-  'U:': [],
+  'r:': [
+    { value: 'Remark text', description: 'Remark template' },
+  ],
+  'S:': [
+    { value: 'Session tune', description: 'Source: Session' },
+    { value: 'Traditional', description: 'Source: Traditional' },
+  ],
+  's:': [
+    { value: 'Symbol line', description: 'Symbol line template' },
+  ],
+  'U:': [
+    { value: 'u = !trill!', description: 'User defined: trill' },
+  ],
   'V:': [
     { value: '1', description: 'Voice 1' },
     { value: '2', description: 'Voice 2' },
     { value: 'T', description: 'Tenor voice' },
     { value: 'B', description: 'Bass voice' },
   ],
-  'W:': [],
-  'w:': [],
-  'Z:': [],
+  'W:': [
+    { value: 'Lyrics line', description: 'Words (multi-line)' },
+  ],
+  'w:': [
+    { value: 'Lyrics for this line', description: 'Words (aligned)' },
+  ],
+  'Z:': [
+    { value: 'Your Name', description: 'Transcriber name' },
+    { value: 'ABC transcription', description: 'Transcription note' },
+  ],
 };
 
 // フィールドキーから候補を取得する関数
