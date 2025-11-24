@@ -192,18 +192,26 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
 
         {/* エラー表示エリア */}
         {validationErrors.length > 0 && (
-          <div
-            className="px-4 py-3 text-xs font-mono overflow-auto border-t"
-            style={{
-              backgroundColor: colors.errorBg,
-              borderColor: colors.errorBorder,
-              borderLeft: `1px solid ${colors.lineNumBorder}`,
-              maxHeight: '12rem',
-              marginLeft: '2.5rem',
-              scrollbarWidth: 'thin',
-              scrollbarColor: `${colors.errorIcon} transparent`
-            }}
-          >
+          <div className="flex">
+            {/* 行番号幅分の空白 */}
+            <div
+              style={{
+                backgroundColor: colors.lineNumBg,
+                minWidth: '2.5rem',
+                borderRight: `1px solid ${colors.lineNumBorder}`
+              }}
+            />
+            {/* エラー内容 */}
+            <div
+              className="flex-1 px-4 py-3 text-xs font-mono overflow-auto border-t"
+              style={{
+                backgroundColor: colors.errorBg,
+                borderColor: colors.errorBorder,
+                maxHeight: '12rem',
+                scrollbarWidth: 'thin',
+                scrollbarColor: `${colors.errorIcon} transparent`
+              }}
+            >
             {/* ヘッダー */}
             <div className="flex items-center gap-2 mb-3">
               <div className="flex items-center gap-2">
@@ -311,6 +319,7 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
                   </svg>
                 </div>
               ))}
+            </div>
             </div>
           </div>
         )}
