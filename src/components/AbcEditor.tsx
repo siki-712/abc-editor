@@ -127,14 +127,16 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
           {/* 行番号 */}
           <div
             ref={lineNumbersRef}
-            className="overflow-hidden select-none border-r"
+            className="overflow-hidden select-none"
             style={{
+              ...sharedTextStyle,
               backgroundColor: colors.lineNumBg,
               minWidth: '3rem',
-              borderRightColor: colors.lineNumBorder,
-              ...sharedTextStyle,
               padding: '16px 8px 16px 8px',
               color: '#6b7280',
+              borderRightColor: colors.lineNumBorder,
+              borderRightStyle: 'solid',
+              borderRightWidth: '1px',
             }}
           >
             {lineNumbers.split('\n').map((num, i) => (
@@ -240,11 +242,12 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
           <div className="flex">
             {/* 行番号幅分の空白 */}
             <div
-              className="border-r"
               style={{
                 backgroundColor: colors.lineNumBg,
                 minWidth: '3rem',
-                borderRightColor: colors.lineNumBorder
+                borderRightColor: colors.lineNumBorder,
+                borderRightStyle: 'solid',
+                borderRightWidth: '1px'
               }}
             />
             {/* エラー内容 */}
