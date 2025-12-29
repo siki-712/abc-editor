@@ -1,9 +1,10 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useCallback, useEffect } from "react";
 import { useLineNumbers } from "../hooks/useLineNumbers";
 import { highlightAbc } from "../utils/highlightAbc";
 import { useAbcAutoComplete } from "../hooks/useAbcAutoComplete";
 import { SuggestionList } from "./SuggestionList";
 import { validateAbc } from "../utils/validateAbc";
+import { format_default } from "../utils/chamberAbc";
 import type { Theme } from "../types/abc";
 
 interface AbcEditorProps {
@@ -115,6 +116,30 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
       textareaRef.current.scrollTop = textareaRef.current.scrollHeight * (line / lines.length);
     }
   };
+
+  // Cmd+S / Ctrl+S でフォーマット
+  const handleFormat = useCallback(() => {
+    try {
+      const formatted = format_default(value);
+      if (formatted !== value) {
+        onChange(formatted);
+      }
+    } catch (e) {
+      console.warn('Format error:', e);
+    }
+  }, [value, onChange]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        handleFormat();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleFormat]);
 
   const getIconColor = (severity: string) => {
     switch (severity) {
