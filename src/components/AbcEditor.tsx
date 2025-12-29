@@ -1,9 +1,9 @@
-import { useRef, useMemo, useState } from "react";
+import { useRef, useMemo } from "react";
 import { useLineNumbers } from "../hooks/useLineNumbers";
 import { highlightAbc } from "../utils/highlightAbc";
 import { useAbcAutoComplete } from "../hooks/useAbcAutoComplete";
 import { SuggestionList } from "./SuggestionList";
-import { validateAbc, type ValidationError } from "../utils/validateAbc";
+import { validateAbc } from "../utils/validateAbc";
 import type { Theme } from "../types/abc";
 
 interface AbcEditorProps {
@@ -44,7 +44,6 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
-  const [hoveredError, setHoveredError] = useState<ValidationError | null>(null);
 
   const lineNumbers = useLineNumbers(value);
   const highlightedCode = highlightAbc(value);
@@ -67,9 +66,8 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
         errorIcon: '#f59e0b',
         errorLocation: '#22d3ee',
         errorMessage: '#e5e7eb',
-        errorHighlight: 'rgba(245, 158, 11, 0.2)',
-        errorHoverBg: 'rgba(51, 65, 85, 0.4)',
-        errorItemBorder: 'rgba(255, 255, 255, 0.05)'
+        warningIcon: '#fbbf24',
+        infoIcon: '#60a5fa',
       }
     : {
         bg: '#f8f9fa',
@@ -86,9 +84,8 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
         errorIcon: '#dc2626',
         errorLocation: '#0891b2',
         errorMessage: '#1f2937',
-        errorHighlight: '#fde047',
-        errorHoverBg: 'rgba(254, 202, 202, 0.4)',
-        errorItemBorder: 'rgba(220, 38, 38, 0.1)'
+        warningIcon: '#d97706',
+        infoIcon: '#2563eb',
       };
 
   // オートコンプリート機能
@@ -109,13 +106,22 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
     }
   };
 
-  const handleErrorClick = (error: ValidationError) => {
+  const handleErrorClick = (line: number) => {
     if (textareaRef.current) {
       const lines = value.split('\n');
-      const position = lines.slice(0, error.line).join('\n').length + (error.line > 0 ? 1 : 0);
+      const position = lines.slice(0, line).join('\n').length + (line > 0 ? 1 : 0);
       textareaRef.current.focus();
       textareaRef.current.setSelectionRange(position, position);
-      textareaRef.current.scrollTop = textareaRef.current.scrollHeight * (error.line / lines.length);
+      textareaRef.current.scrollTop = textareaRef.current.scrollHeight * (line / lines.length);
+    }
+  };
+
+  const getIconColor = (severity: string) => {
+    switch (severity) {
+      case 'error': return colors.errorIcon;
+      case 'warning': return colors.warningIcon;
+      case 'info': return colors.infoIcon;
+      default: return colors.errorIcon;
     }
   };
 
@@ -152,52 +158,9 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
             style={{
               ...sharedTextStyle,
               backgroundColor: colors.editorBg,
-              opacity: hoveredError ? 0.3 : 1,
-              transition: 'opacity 0.2s',
             }}
             dangerouslySetInnerHTML={{ __html: highlightedCode }}
           />
-
-          {/* ホバー中の小節ハイライト */}
-          {hoveredError && (() => {
-            const lines = value.split('\n');
-            const errorLine = lines[hoveredError.line] || '';
-            const errorMeasure = errorLine.substring(hoveredError.startCol, hoveredError.endCol);
-            const highlightedMeasure = highlightAbc(errorMeasure);
-
-            return (
-              <div
-                className="absolute inset-0 overflow-hidden pointer-events-none"
-                style={{
-                  ...sharedTextStyle,
-                  backgroundColor: 'transparent',
-                }}
-              >
-                {lines.map((line, lineIndex) => {
-                  if (lineIndex === hoveredError.line) {
-                    const before = line.substring(0, hoveredError.startCol);
-                    const after = line.substring(hoveredError.endCol);
-
-                    return (
-                      <div key={lineIndex}>
-                        <span style={{ visibility: 'hidden' }}>{before}</span>
-                        <span
-                          style={{
-                            backgroundColor: colors.errorHighlight,
-                            borderRadius: '2px',
-                            padding: '1px 2px',
-                          }}
-                          dangerouslySetInnerHTML={{ __html: highlightedMeasure }}
-                        />
-                        <span style={{ visibility: 'hidden' }}>{after}</span>
-                      </div>
-                    );
-                  }
-                  return <div key={lineIndex} style={{ visibility: 'hidden' }}>{line || '\u200B'}</div>;
-                })}
-              </div>
-            );
-          })()}
 
           {/* テキストエリア */}
           <textarea
@@ -279,7 +242,7 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
                   <line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
                 <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: colors.errorHeader }}>
-                  Validation Issues
+                  Diagnostics
                 </span>
               </div>
               <div
@@ -298,16 +261,12 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
               {validationErrors.map((error, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-3 px-3 py-2 rounded-md border cursor-pointer"
+                  className="flex items-start gap-3 px-3 py-2 rounded-md border cursor-pointer hover:bg-opacity-50"
                   style={{
-                    backgroundColor: hoveredError === error ? colors.errorHoverBg : 'transparent',
-                    borderColor: hoveredError === error ? colors.errorIcon : colors.errorItemBorder,
+                    borderColor: 'transparent',
                     transition: 'all 0.15s ease-in-out',
-                    transform: hoveredError === error ? 'translateX(2px)' : 'translateX(0)'
                   }}
-                  onMouseEnter={() => setHoveredError(error)}
-                  onMouseLeave={() => setHoveredError(null)}
-                  onClick={() => handleErrorClick(error)}
+                  onClick={() => handleErrorClick(error.line)}
                 >
                   {/* アイコン */}
                   <svg
@@ -320,7 +279,7 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="shrink-0 mt-0.5"
-                    style={{ color: colors.errorIcon }}
+                    style={{ color: getIconColor(error.severity) }}
                   >
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="12" y1="8" x2="12" y2="12"/>
@@ -337,7 +296,15 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
                           backgroundColor: theme === 'dark' ? 'rgba(34, 211, 238, 0.1)' : 'rgba(8, 145, 178, 0.1)'
                         }}
                       >
-                        Line {error.line + 1}, Measure {error.measureIndex + 1}
+                        Line {error.line + 1}:{error.column + 1}
+                      </span>
+                      <span
+                        className="text-[10px] px-1.5 py-0.5 rounded opacity-70"
+                        style={{
+                          backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'
+                        }}
+                      >
+                        {error.code}
                       </span>
                     </div>
                     <span className="text-[11px] leading-relaxed" style={{ color: colors.errorMessage }}>
@@ -355,12 +322,8 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="shrink-0 mt-1 opacity-50"
-                    style={{
-                      color: colors.errorIcon,
-                      opacity: hoveredError === error ? 1 : 0.3,
-                      transition: 'opacity 0.15s ease-in-out'
-                    }}
+                    className="shrink-0 mt-1 opacity-30"
+                    style={{ color: getIconColor(error.severity) }}
                   >
                     <line x1="5" y1="12" x2="19" y2="12"/>
                     <polyline points="12 5 19 12 12 19"/>

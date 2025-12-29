@@ -2,20 +2,27 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
+import wasm from 'vite-plugin-wasm'
+import topLevelAwait from 'vite-plugin-top-level-await'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     cssInjectedByJsPlugin(), // CSSをJavaScriptに自動注入
+    wasm(),
+    topLevelAwait(),
   ],
+  optimizeDeps: {
+    exclude: ['chamber-abc'],
+  },
   build: {
     emptyOutDir: false, // tscで生成した型定義を保持
     lib: {
       entry: resolve(__dirname, 'lib/index.ts'),
       name: 'AbcEditor',
-      formats: ['es', 'cjs'],
-      fileName: (format) => `abc-editor.${format}.js`,
+      formats: ['es'],
+      fileName: () => `abc-editor.es.js`,
     },
     rollupOptions: {
       // React, React-DOM, abcjsを外部依存として扱う
