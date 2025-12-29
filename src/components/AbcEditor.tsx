@@ -1,4 +1,4 @@
-import { useRef, useMemo, useCallback, useEffect } from "react";
+import { useRef, useMemo, useCallback, useEffect, useState } from "react";
 import { useLineNumbers } from "../hooks/useLineNumbers";
 import { highlightAbc } from "../utils/highlightAbc";
 import { useAbcAutoComplete } from "../hooks/useAbcAutoComplete";
@@ -49,6 +49,7 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
   const lineNumbers = useLineNumbers(value);
   const highlightedCode = highlightAbc(value);
   const validationErrors = useMemo(() => validateAbc(value), [value]);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   // テーマごとの色設定
   const colors = theme === 'dark'
@@ -337,7 +338,7 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
                     </span>
                   </div>
 
-                  {/* ジャンプアイコン */}
+                  {/* コピーアイコン */}
                   <svg
                     width="14"
                     height="14"
@@ -347,11 +348,26 @@ export const AbcEditor = ({ value, onChange, theme = 'light' }: AbcEditorProps) 
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="shrink-0 mt-1 opacity-30"
-                    style={{ color: getIconColor(error.severity) }}
+                    className="shrink-0 mt-1 cursor-pointer transition-opacity"
+                    style={{
+                      color: copiedIndex === index ? '#22c55e' : colors.errorMessage,
+                      opacity: copiedIndex === index ? 1 : 0.3,
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(error.message);
+                      setCopiedIndex(index);
+                      setTimeout(() => setCopiedIndex(null), 2000);
+                    }}
                   >
-                    <line x1="5" y1="12" x2="19" y2="12"/>
-                    <polyline points="12 5 19 12 12 19"/>
+                    {copiedIndex === index ? (
+                      <polyline points="20 6 9 17 4 12"/>
+                    ) : (
+                      <>
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                      </>
+                    )}
                   </svg>
                 </div>
               ))}
