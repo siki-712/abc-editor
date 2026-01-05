@@ -25,8 +25,8 @@ export default defineConfig({
       fileName: () => `abc-editor.es.js`,
     },
     rollupOptions: {
-      // React, React-DOM, abcjsを外部依存として扱う
-      external: ['react', 'react-dom', 'react/jsx-runtime', 'abcjs'],
+      // React, React-DOM, abcjs, chamber-abcを外部依存として扱う
+      external: ['react', 'react-dom', 'react/jsx-runtime', 'abcjs', 'chamber-abc'],
       output: {
         globals: {
           react: 'React',

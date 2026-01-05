@@ -36,14 +36,27 @@ This package requires the following peer dependencies:
 ```json
 {
   "react": "^18.0.0 || ^19.0.0",
-  "react-dom": "^18.0.0 || ^19.0.0"
+  "react-dom": "^18.0.0 || ^19.0.0",
+  "chamber-abc": "^0.2.0"
 }
 ```
 
 Install them if you haven't already:
 
 ```bash
-npm install react react-dom
+npm install react react-dom chamber-abc
+```
+
+### Next.js Usage
+
+For Next.js projects, add the package to `transpilePackages` in your `next.config.mjs`:
+
+```javascript
+const nextConfig = {
+  transpilePackages: ['@ovnonvo/abc-editor', 'chamber-abc'],
+};
+
+export default nextConfig;
 ```
 
 ## Usage
